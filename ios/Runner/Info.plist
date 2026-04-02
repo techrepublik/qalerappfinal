@@ -28,7 +28,7 @@
 	<true/>
 	<!-- Google Maps SDK for iOS — paste your key here (Google Cloud: enable Maps SDK for iOS). See ios/MAPS_IOS_API_KEY.txt -->
 	<key>GMSApiKey</key>
-	<string></string>
+	<string>AIzaSyCms4SIjV6BRcHuGPQi7ZqQoXxx_cAHYi4</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Q-ALERT uses your location to show nearby alerts, hospitals, and emergency resources when you use the app.</string>
 	<key>NSCameraUsageDescription</key>

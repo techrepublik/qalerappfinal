@@ -336,27 +336,34 @@ class _QAlertWithUpdatesState extends State<QAlertWithUpdates> with SingleTicker
                     child: const Icon(Icons.family_restroom, color: Color(0xFFDC143C)),
                   ),
                   const SizedBox(width: 16),
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Family Emergency Contacts",
-                        style: TextStyle(
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "Family Emergency Contacts",
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF1A1A1A)
+                            color: Color(0xFF1A1A1A),
+                          ),
                         ),
-                      ),
-                      Text(
-                        "Manage your personal safety circle",
-                        style: TextStyle(
+                        Text(
+                          "Manage your personal safety circle",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
                             fontSize: 12,
-                            color: Colors.grey
+                            color: Colors.grey,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  const Spacer(),
+                  const SizedBox(width: 8),
                   const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
                 ],
               ),
@@ -498,6 +505,8 @@ class _QAlertWithUpdatesState extends State<QAlertWithUpdates> with SingleTicker
                     Expanded(
                       child: Text(
                         lgu.barName,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
@@ -652,13 +661,17 @@ class _QAlertWithUpdatesState extends State<QAlertWithUpdates> with SingleTicker
           child: Icon(icon, size: 18, color: const Color(0xFF1A1A1A)),
         ),
         const SizedBox(width: 10),
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            letterSpacing: -0.3,
-            color: Color(0xFF1A1A1A),
+        Expanded(
+          child: Text(
+            title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.3,
+              color: Color(0xFF1A1A1A),
+            ),
           ),
         ),
       ],
@@ -956,6 +969,8 @@ Widget _buildOnlineReportButton({
                         children: [
                           Text(
                             name,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -980,28 +995,35 @@ Widget _buildOnlineReportButton({
                     ),
                     if (distance != null && enabled) ...[
                       const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: color.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: color.withOpacity(0.3)),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.near_me_rounded, color: color, size: 12),
-                            const SizedBox(width: 4),
-                            Text(
-                              distance < 1
-                                  ? '${(distance * 1000).toStringAsFixed(0)}m'
-                                  : '${distance.toStringAsFixed(1)}km',
-                              style: TextStyle(
-                                color: color,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
+                      Flexible(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: color.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: color.withOpacity(0.3)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.near_me_rounded, color: color, size: 12),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  distance < 1
+                                      ? '${(distance * 1000).toStringAsFixed(0)}m'
+                                      : '${distance.toStringAsFixed(1)}km',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: color,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ],

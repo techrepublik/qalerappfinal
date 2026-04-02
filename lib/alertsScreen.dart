@@ -282,13 +282,15 @@ class _AlertScreenState extends State<AlertScreen> {
               const SizedBox(width: 8),
               // Count badge  (mirrors "3 found" in hospitals)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFF5252),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   '${alerts.length} alerts',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 11,
@@ -391,8 +393,9 @@ class _AlertScreenState extends State<AlertScreen> {
               ),
               const SizedBox(width: 12),
 
-              // Title + time
+              // Title + time (more flex than LGU column)
               Expanded(
+                flex: 3,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -409,6 +412,8 @@ class _AlertScreenState extends State<AlertScreen> {
                     const SizedBox(height: 3),
                     Text(
                       timeago.format(alert.createdAt),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey.shade500,
@@ -418,10 +423,12 @@ class _AlertScreenState extends State<AlertScreen> {
                 ),
               ),
 
-              // Location (constrain width — long names like "President Roxas" caused RenderFlex overflow)
+              // Location — long LGU names (e.g. President Roxas)
               Flexible(
+                flex: 2,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       alert.lguCode,
@@ -437,6 +444,8 @@ class _AlertScreenState extends State<AlertScreen> {
                     const SizedBox(height: 2),
                     Text(
                       'location',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 11,
                         color: Colors.grey.shade400,

@@ -292,42 +292,57 @@ class _HospitalListViewState extends State<HospitalListView> {
                                 child: const Icon(Icons.local_hospital, color: Colors.white, size: 24),
                               ),
                               const Spacer(),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.near_me_rounded, color: Colors.white, size: 12),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      distance < 1
-                                          ? '${(distance * 1000).toStringAsFixed(0)}m'
-                                          : '${distance.toStringAsFixed(1)}km',
-                                      style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
-                                    ),
-                                  ],
+                              Flexible(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.near_me_rounded, color: Colors.white, size: 12),
+                                      const SizedBox(width: 4),
+                                      Flexible(
+                                        child: Text(
+                                          distance < 1
+                                              ? '${(distance * 1000).toStringAsFixed(0)}m'
+                                              : '${distance.toStringAsFixed(1)}km',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 16),
-                          Text(
-                            hospital.name,
-                            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700, height: 1.3),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                          const SizedBox(height: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Text(
+                                  hospital.name,
+                                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700, height: 1.25),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  hospital.address,
+                                  style: TextStyle(color: Colors.white.withOpacity(0.85), fontSize: 11),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            hospital.address,
-                            style: TextStyle(color: Colors.white.withOpacity(0.85), fontSize: 11),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const Spacer(),
+                          const SizedBox(height: 8),
                           Row(
                             children: [
                               Expanded(
