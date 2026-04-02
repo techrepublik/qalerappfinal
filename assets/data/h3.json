@@ -1,0 +1,49 @@
+{
+  "lgu": [
+    {
+      "barName": "No Data Available",
+      "lguName": "No Data Available",
+      "online": {
+        "paid": true,
+        "munId": "687f7dc00a193d8c3d2f40d9",
+        "provId": "687f788a0a193d8c3d2f40bb"
+      },
+      "hex_list": [
+        "98685c71d5fffff"
+      ],
+      "localhotlines": {
+        "bdrrmo": "911"
+      },
+      "hotlines": [
+        {
+          "name": "MDRRMO",
+          "address": "",
+          "contact": "",
+          "coordinates": []
+        },
+        {
+          "name": "Police",
+          "address": "",
+          "contact": "",
+          "coordinates": []
+        },
+        {
+          "name": "Fire",
+          "address": "",
+          "contact": "",
+          "coordinates": []
+        }
+      ],
+      "hospitals": [
+        {
+          "name": "Hospital",
+          "address": "",
+          "contact": "",
+          "coordinates": []
+        }
+
+      ]
+    }
+
+  ]
+}

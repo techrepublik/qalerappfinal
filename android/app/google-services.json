@@ -1,0 +1,63 @@
+{
+  "project_info": {
+    "project_number": "827333383227",
+    "project_id": "qalert-79441",
+    "storage_bucket": "qalert-79441.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:827333383227:android:0d876e2ab2f92f2dac781e",
+        "android_client_info": {
+          "package_name": "com.alertify.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "827333383227-edvl24a1i57dtg1f7g1nnpmdm3e0gsr4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.alertify.app",
+            "certificate_hash": "7b36cceb98693bc40e5c1784de2933630cb9405c"
+          }
+        },
+        {
+          "client_id": "827333383227-q7fuhamrjae0pnt3t2ntcrafhi5t417r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.alertify.app",
+            "certificate_hash": "77468e94ac1c602dd3bef2c9d6950d3a5fabc8f3"
+          }
+        },
+        {
+          "client_id": "827333383227-qfika09nfceo6pthu33u9lka2mp19v09.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.alertify.app",
+            "certificate_hash": "670a6217c257927b1ac777a8202e594cd04ce936"
+          }
+        },
+        {
+          "client_id": "827333383227-e34mmccvvbduv2fp5v7bgt6c911ij3a3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCe_NSy8P6rHiPwAaVxPfzDvJEjMFkqXV4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "827333383227-e34mmccvvbduv2fp5v7bgt6c911ij3a3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

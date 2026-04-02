@@ -1,0 +1,20 @@
+{
+  "municipalities": [
+    {
+      "name": "City of Kidapawan",
+      "province": "North Cotabato",
+      "hotlines": [
+        { "type": "DRR", "number": "09089217888", "station": "CDRRMO" }
+
+      ]
+    },
+    {
+      "name": "President Roxas",
+      "province": "North Cotabato",
+      "hotlines": [
+        { "type": "DRR", "number": "09193373409", "station": "MDRRMO" }
+
+      ]
+    }
+  ]
+}
