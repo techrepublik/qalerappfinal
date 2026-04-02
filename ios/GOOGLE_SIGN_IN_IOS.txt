@@ -1,34 +1,47 @@
-Google Sign-In on iOS — fix "Custom scheme URIs are not allowed for WEB client type"
-======================================================================================
+Google Sign-In (iOS + backend)
+==============================
 
-What went wrong
+If OAuth clients were DELETED in Google Cloud Console
+-----------------------------------------------------
+You will see errors like "Access blocked: Authorization error" or "deleted_client".
+Recreate credentials and update BOTH Dart and this plist.
+
+1) Open: https://console.cloud.google.com/apis/credentials
+   Use the same GCP project as Firebase (e.g. qalert-79441).
+
+2) OAuth consent screen: must be configured (Testing or Production) with your app domain if required.
+
+3) Create OAuth client ID — Application type: iOS
+   - Bundle ID: com.qalert.joma (must match Xcode Runner target)
+   - Copy the full Client ID, e.g. 123456789-abc.apps.googleusercontent.com
+
+4) Create OAuth client ID — Application type: Web application
+   - Used for ID tokens sent to https://ems.qalertapp.com/api/auth/google
+   - Copy the full Web Client ID
+
+5) lib/google_oauth_config.dart — set:
+     kGoogleIosClientId     = '<iOS client id from step 3>'
+     kGoogleWebServerClientId = '<Web client id from step 4>'
+
+6) ios/Runner/Info.plist — set:
+     GIDClientID        = same iOS client id string as step 3
+     GIDServerClientID  = same Web client id string as step 4
+     Replace the placeholder CFBundleURLSchemes entry (com.googleusercontent.apps.PASTE_IOS_CLIENT_PREFIX)
+     with the reversed iOS client id:
+       If client id is  123456789-xxxxx.apps.googleusercontent.com
+       then scheme is   com.googleusercontent.apps.123456789-xxxxx
+       (prefix "com.googleusercontent.apps." + everything before ".apps.googleusercontent.com")
+
+7) Backend: ensure your API verifies Google ID tokens against the Web client ID (audience).
+   If the Web client id changed, update server environment / Firebase config.
+
+8) Android: update android/app/google-services.json if you use Firebase-managed OAuth, or ensure
+   the Web client id in Dart matches what the backend expects.
+
+Optional: run `dart pub global run flutterfire_cli:flutterfire configure` after Firebase iOS app is registered.
+
+Common mistakes
 ---------------
-GIDClientID / the sign-in client ID must be an OAuth 2.0 client of type **iOS**, not **Web**.
-The Web client is only for GIDServerClientID / serverClientId (ID tokens to your backend).
-
-The screen may mention com.alertify.app (Android package). Your iOS bundle ID in Xcode is
-**com.qalert.joma** — the iOS OAuth client must use that exact bundle ID.
-
-What to do
-----------
-1) Google Cloud Console → APIs & Services → Credentials → Create Credentials → OAuth client ID.
-
-2) Application type: **iOS**
-
-3) Bundle ID: **com.qalert.joma** (must match Xcode → Runner → Signing & Capabilities)
-
-4) After creation, copy the **Client ID** (ends with .apps.googleusercontent.com).
-
-5) In lib/GoogleSignUpPage.dart set:
-     _googleIosClientId = '<paste full Client ID here>';
-
-6) In ios/Runner/Info.plist, set CFBundleURLSchemes to the **reversed** client ID:
-   If Client ID is  827333383227-abc123.apps.googleusercontent.com
-   then URL scheme is:
-     com.googleusercontent.apps.827333383227-abc123
-   (prefix "com.googleusercontent.apps." + the part before ".apps.googleusercontent.com")
-
-7) Keep GIDServerClientID / serverClientId as the **Web** client (already set).
-
-Alternative: add the iOS app in Firebase, download GoogleService-Info.plist, and copy
-CLIENT_ID and REVERSED_CLIENT_ID from that file into the Dart constant and Info.plist.
+- Using a Web client as GIDClientID on iOS → "Custom scheme URIs are not allowed for WEB client"
+- Mismatch between plist and google_oauth_config.dart
+- Bundle ID in Google Cloud ≠ com.qalert.joma

@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:joma/google_oauth_config.dart';
 import 'package:joma/mainscreen.dart';
 import 'services/analytics.dart';
 
@@ -19,19 +20,15 @@ class _GoogleSignUpPageState extends State<GoogleSignUpPage> {
   // Brand Color
   static const Color mintGreen = Color(0xFF00BFA5);
 
-  /// iOS OAuth client (same as GIDClientID in ios/Runner/Info.plist). Not the Web client.
-  static const String _googleIosClientId =
-      '827333383227-fis86e083fcrrmnvjhh3ve2i50e66npv.apps.googleusercontent.com';
-
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     clientId: (!kIsWeb &&
             defaultTargetPlatform == TargetPlatform.iOS &&
-            _googleIosClientId.isNotEmpty)
-        ? _googleIosClientId
+            kGoogleIosClientId.isNotEmpty)
+        ? kGoogleIosClientId
         : null,
-    /// Web client — backend must verify ID tokens against this (not the iOS client).
-    serverClientId:
-        '827333383227-e34mmccvvbduv2fp5v7bgt6c911ij3a3.apps.googleusercontent.com',
+    serverClientId: kGoogleWebServerClientId.isNotEmpty
+        ? kGoogleWebServerClientId
+        : null,
   );
 
   final String _baseUrl = 'https://ems.qalertapp.com/api';

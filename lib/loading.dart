@@ -1,9 +1,10 @@
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:in_app_update/in_app_update.dart';
 import 'package:joma/agreement.dart';
 import 'package:joma/GoogleSignUpPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'mainScreen.dart';
-import 'package:in_app_update/in_app_update.dart';
 
 class LoadingPage extends StatefulWidget {
   const LoadingPage({super.key});
@@ -65,26 +66,22 @@ class _LoadingPageState extends State<LoadingPage> {
       }
     }
 
-  Future<void> immediateUpdate() async {
-    try {
-      await InAppUpdate.performImmediateUpdate();
-    } catch (e) {
-      print("Immediate update failed: $e");
-    }
-  }
-
+  /// Google Play in-app update API — Android only (no iOS native implementation).
   Future<void> checkForUpdate() async {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
+      await checkUserProfile();
+      return;
+    }
     try {
       final updateInfo = await InAppUpdate.checkForUpdate();
-
       if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable) {
-        await immediateUpdate(); // 🔴 force update
+        await InAppUpdate.performImmediateUpdate();
       } else {
-        await checkUserProfile(); // continue your flow
+        await checkUserProfile();
       }
     } catch (e) {
-      print("Update check failed: $e");
-      await checkUserProfile(); // fallback
+      debugPrint('Update check failed: $e');
+      await checkUserProfile();
     }
   }
 

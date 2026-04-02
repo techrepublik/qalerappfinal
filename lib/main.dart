@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -71,6 +72,16 @@ void main() async {
     scaffoldMessengerKey: snackbarKey,
     home: const QAlertLanding(),
   ));
+}
+
+/// iOS: [FirebaseMessaging.getToken] needs APNs token; poll briefly after permission.
+Future<void> _waitForApnsToken(FirebaseMessaging messaging) async {
+  for (var i = 0; i < 20; i++) {
+    final apns = await messaging.getAPNSToken();
+    if (apns != null) return;
+    await Future.delayed(const Duration(milliseconds: 250));
+  }
+  debugPrint('APNS token not received in time (simulator has no APNs); FCM may fail until device.');
 }
 
 
@@ -160,7 +171,24 @@ class _QAlertLandingState extends State<QAlertLanding> {
     if (settings.authorizationStatus != AuthorizationStatus.authorized &&
         settings.authorizationStatus != AuthorizationStatus.provisional) return;
 
-    final token = await messaging.getToken();
+    // iOS: FCM token requires APNs registration first; avoid apns-token-not-set
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      await _waitForApnsToken(messaging);
+    }
+
+    String? token;
+    try {
+      token = await messaging.getToken();
+    } catch (e) {
+      debugPrint('FCM getToken (retry after delay): $e');
+      await Future.delayed(const Duration(seconds: 2));
+      try {
+        token = await messaging.getToken();
+      } catch (e2) {
+        debugPrint('FCM getToken failed: $e2');
+      }
+    }
+
     if (token != null) {
       debugPrint('📱 FCM Token: $token');
       final prefs = await SharedPreferences.getInstance();

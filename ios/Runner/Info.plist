@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Joma</string>
+	<string>Q-ALERT</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -15,7 +15,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>joma</string>
+	<string>qalert</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -41,6 +41,7 @@
 	<string>Q-ALERT needs microphone access when you record video with sound for incident reports.</string>
 	<!--
 		GIDClientID = iOS OAuth client (custom URL scheme). GIDServerClientID = Web client (ID tokens to backend).
+		Must match lib/google_oauth_config.dart.
 	-->
 	<key>GIDClientID</key>
 	<string>827333383227-fis86e083fcrrmnvjhh3ve2i50e66npv.apps.googleusercontent.com</string>
