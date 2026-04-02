@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb;
 import 'package:http/http.dart' as http;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:joma/mainscreen.dart';
 import 'services/analytics.dart';
-
 
 class GoogleSignUpPage extends StatefulWidget {
   const GoogleSignUpPage({super.key});
@@ -19,26 +19,32 @@ class _GoogleSignUpPageState extends State<GoogleSignUpPage> {
   // Brand Color
   static const Color mintGreen = Color(0xFF00BFA5);
 
-
+  /// iOS OAuth client (same as GIDClientID in ios/Runner/Info.plist). Not the Web client.
+  static const String _googleIosClientId =
+      '827333383227-fis86e083fcrrmnvjhh3ve2i50e66npv.apps.googleusercontent.com';
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    serverClientId: '827333383227-e34mmccvvbduv2fp5v7bgt6c911ij3a3.apps.googleusercontent.com',
-
+    clientId: (!kIsWeb &&
+            defaultTargetPlatform == TargetPlatform.iOS &&
+            _googleIosClientId.isNotEmpty)
+        ? _googleIosClientId
+        : null,
+    /// Web client — backend must verify ID tokens against this (not the iOS client).
+    serverClientId:
+        '827333383227-e34mmccvvbduv2fp5v7bgt6c911ij3a3.apps.googleusercontent.com',
   );
-
 
   final String _baseUrl = 'https://ems.qalertapp.com/api';
 
   // final String _baseUrl = 'http://192.168.1.11:3000/api';
 
   Future<void> _handleGoogleSignIn() async {
-
     try {
-
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) return;
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
       final String? idToken = googleAuth.idToken;
 
       if (!mounted) return;
@@ -86,7 +92,6 @@ class _GoogleSignUpPageState extends State<GoogleSignUpPage> {
           await prefs.setString('province', userData['province']);
         }
 
-
         AnalyticsService.trackEvent(
           eventName: 'SignUp',
           lguCode: userData['lguCode'],
@@ -99,12 +104,10 @@ class _GoogleSignUpPageState extends State<GoogleSignUpPage> {
         final String phone = (userData['phone'] ?? '').toString().trim();
 
         if (mounted) {
-
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => const MainScreen()),
-            );
-
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const MainScreen()),
+          );
         }
       } else {
         _showError('Server authentication failed (${response.statusCode})');
@@ -181,7 +184,7 @@ class _GoogleSignUpPageState extends State<GoogleSignUpPage> {
                     const SizedBox(height: 20),
                     const Text(
                       "By continuing, you agree to our terms of service. "
-                          "Your data is protected by Google security protocols.",
+                      "Your data is protected by Google security protocols.",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 11,

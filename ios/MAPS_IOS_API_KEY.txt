@@ -1,0 +1,19 @@
+Google Maps SDK for iOS — GMSApiKey
+====================================
+
+The crash "must be initialized via [GMSServices provideAPIKey:...]" is fixed by
+AppDelegate.swift + the GMSApiKey entry in ios/Runner/Info.plist.
+
+1) Google Cloud Console → your project → APIs & Services → Credentials.
+
+2) Create an API key (or use an existing one).
+
+3) Enable "Maps SDK for iOS" for that key (APIs & Services → Library).
+
+4) Restrict the key (recommended): iOS apps → bundle ID com.qalert.joma (match Xcode).
+
+5) Open ios/Runner/Info.plist in Xcode (or as text) and paste the key as the string value
+   for the key "GMSApiKey" (between <string> and </string>).
+
+This key is separate from MOBILE_API_KEY in .env (backend). Do not commit production
+keys to public repos; use CI secrets or a local plist override for release builds.

@@ -1,0 +1,34 @@
+Google Sign-In on iOS — fix "Custom scheme URIs are not allowed for WEB client type"
+======================================================================================
+
+What went wrong
+---------------
+GIDClientID / the sign-in client ID must be an OAuth 2.0 client of type **iOS**, not **Web**.
+The Web client is only for GIDServerClientID / serverClientId (ID tokens to your backend).
+
+The screen may mention com.alertify.app (Android package). Your iOS bundle ID in Xcode is
+**com.qalert.joma** — the iOS OAuth client must use that exact bundle ID.
+
+What to do
+----------
+1) Google Cloud Console → APIs & Services → Credentials → Create Credentials → OAuth client ID.
+
+2) Application type: **iOS**
+
+3) Bundle ID: **com.qalert.joma** (must match Xcode → Runner → Signing & Capabilities)
+
+4) After creation, copy the **Client ID** (ends with .apps.googleusercontent.com).
+
+5) In lib/GoogleSignUpPage.dart set:
+     _googleIosClientId = '<paste full Client ID here>';
+
+6) In ios/Runner/Info.plist, set CFBundleURLSchemes to the **reversed** client ID:
+   If Client ID is  827333383227-abc123.apps.googleusercontent.com
+   then URL scheme is:
+     com.googleusercontent.apps.827333383227-abc123
+   (prefix "com.googleusercontent.apps." + the part before ".apps.googleusercontent.com")
+
+7) Keep GIDServerClientID / serverClientId as the **Web** client (already set).
+
+Alternative: add the iOS app in Firebase, download GoogleService-Info.plist, and copy
+CLIENT_ID and REVERSED_CLIENT_ID from that file into the Dart constant and Info.plist.

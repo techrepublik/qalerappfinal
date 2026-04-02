@@ -26,8 +26,37 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<!-- Google Maps SDK for iOS — paste your key here (Google Cloud: enable Maps SDK for iOS). See ios/MAPS_IOS_API_KEY.txt -->
+	<key>GMSApiKey</key>
+	<string></string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Q-ALERT uses your location to show nearby alerts, hospitals, and emergency resources when you use the app.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Q-ALERT needs camera access to capture photos or video for incident reports and emergency documentation.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Q-ALERT needs access to your photo library so you can attach images to incident reports.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Q-ALERT may save images to your photo library when you export or share incident media.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Q-ALERT needs microphone access when you record video with sound for incident reports.</string>
+	<!--
+		GIDClientID = iOS OAuth client (custom URL scheme). GIDServerClientID = Web client (ID tokens to backend).
+	-->
+	<key>GIDClientID</key>
+	<string>827333383227-fis86e083fcrrmnvjhh3ve2i50e66npv.apps.googleusercontent.com</string>
+	<key>GIDServerClientID</key>
+	<string>827333383227-e34mmccvvbduv2fp5v7bgt6c911ij3a3.apps.googleusercontent.com</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.827333383227-fis86e083fcrrmnvjhh3ve2i50e66npv</string>
+			</array>
+		</dict>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

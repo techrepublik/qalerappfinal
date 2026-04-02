@@ -57,7 +57,7 @@ class _HospitalListViewState extends State<HospitalListView> {
   }
 
   Future<List<Hospital>> fetchHospitals() async {
-    print('this hospital lguCode: ${widget.lguCode}');
+    debugPrint('Hospital list lguCode: ${widget.lguCode}');
 
     final uri = Uri.parse('$apiBaseUrl/api/v2/hospitals/?lguCode=${widget.lguCode}');
 
@@ -69,7 +69,7 @@ class _HospitalListViewState extends State<HospitalListView> {
       },
     );
 
-   if (response.statusCode == 200) {
+    if (response.statusCode == 200) {
       final Map<String, dynamic> body = json.decode(response.body);
       final List<dynamic> hospitalList = body['data'];
 
@@ -83,9 +83,16 @@ class _HospitalListViewState extends State<HospitalListView> {
       });
 
       return hospitals;
-    } else {
-      throw Exception('Failed to load hospitals');
     }
+
+    if (response.statusCode == 401 || response.statusCode == 403) {
+      debugPrint(
+        'Hospitals API ${response.statusCode}: check MOBILE_API_KEY in .env matches ems.qalertapp.com',
+      );
+      return [];
+    }
+
+    throw Exception('Failed to load hospitals (${response.statusCode})');
   }
 
   void _openUrl(String url) async {
@@ -206,12 +213,19 @@ class _HospitalListViewState extends State<HospitalListView> {
                 child: const Icon(Icons.local_hospital_rounded, color: Color(0xFF10B981), size: 20),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Nearby Private Hospitals',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, letterSpacing: -0.4, color: Color(0xFF1A1A1A)),
+              Expanded(
+                child: Text(
+                  'Nearby Private Hospitals',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, letterSpacing: -0.4, color: Colors.grey[900]),
+                ),
               ),
-              const Spacer(),
-              Text('${hospitals.length} found', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey[600])),
+              const SizedBox(width: 8),
+              Text(
+                '${hospitals.length} found',
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey[600]),
+              ),
             ],
           ),
         ),
@@ -324,14 +338,21 @@ class _HospitalListViewState extends State<HospitalListView> {
                                     child: InkWell(
                                       onTap: () => _openUrl('tel:${hospital.phone}'),
                                       borderRadius: BorderRadius.circular(12),
-                                      child: const Padding(
-                                        padding: EdgeInsets.symmetric(vertical: 10),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
                                         child: Row(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            Icon(Icons.phone_rounded, color: Color(0xFF10B981), size: 16),
-                                            SizedBox(width: 6),
-                                            Text('Dial Now', style: TextStyle(color: Color(0xFF10B981), fontSize: 13, fontWeight: FontWeight.w700)),
+                                            const Icon(Icons.phone_rounded, color: Color(0xFF10B981), size: 16),
+                                            const SizedBox(width: 4),
+                                            Flexible(
+                                              child: Text(
+                                                'Dial Now',
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(color: Color(0xFF10B981), fontSize: 12, fontWeight: FontWeight.w700),
+                                              ),
+                                            ),
                                           ],
                                         ),
                                       ),

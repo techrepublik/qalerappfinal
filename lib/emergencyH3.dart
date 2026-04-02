@@ -1547,7 +1547,9 @@ Widget _buildOnlineReportButton({
       _showError('No LGU data available for this location: ${e.toString()}');
     }
 
-    print('Found LGUs: $foundLGUs');
+    debugPrint(
+      'Found LGUs (${foundLGUs.length}): ${foundLGUs.map((e) => e.lgu).join(", ")}',
+    );
 
   }
 

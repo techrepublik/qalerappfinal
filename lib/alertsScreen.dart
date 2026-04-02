@@ -41,7 +41,9 @@ class _AlertScreenState extends State<AlertScreen> {
   void didUpdateWidget(AlertScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.lguCode != widget.lguCode) {
-       fetchAlerts();
+      setState(() {
+        _alertsFuture = fetchAlerts();
+      });
     }
   }
 
@@ -71,11 +73,17 @@ class _AlertScreenState extends State<AlertScreen> {
           .where((a) => a.status == 'published')
           .toList()
         ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-    } else {
-      print('Server Error: ${response.statusCode}');
-      throw Exception('Failed to load alerts: ${response.reasonPhrase}');
     }
+
+    if (response.statusCode == 401 || response.statusCode == 403) {
+      debugPrint(
+        'Alerts API ${response.statusCode}: check MOBILE_API_KEY in .env matches ems.qalertapp.com',
+      );
+      return [];
+    }
+
+    debugPrint('Alerts API error: ${response.statusCode}');
+    throw Exception('Failed to load alerts: ${response.reasonPhrase}');
   }
 
   // ─── Build ───────────────────────────────────────────────────────────────────
@@ -258,16 +266,20 @@ class _AlertScreenState extends State<AlertScreen> {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Recent Alerts',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.4,
-                  color: Color(0xFF1A1A1A),
+              const Expanded(
+                child: Text(
+                  'Recent Alerts',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.4,
+                    color: Color(0xFF1A1A1A),
+                  ),
                 ),
               ),
-              const Spacer(),
+              const SizedBox(width: 8),
               // Count badge  (mirrors "3 found" in hospitals)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -386,6 +398,8 @@ class _AlertScreenState extends State<AlertScreen> {
                   children: [
                     Text(
                       alert.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -404,27 +418,32 @@ class _AlertScreenState extends State<AlertScreen> {
                 ),
               ),
 
-              // Location
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    alert.lguCode,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black54,
+              // Location (constrain width — long names like "President Roxas" caused RenderFlex overflow)
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      alert.lguCode,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.end,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black54,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'location',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey.shade400,
+                    const SizedBox(height: 2),
+                    Text(
+                      'location',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey.shade400,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),

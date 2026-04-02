@@ -65,6 +65,6 @@ class DefaultFirebaseOptions {
     messagingSenderId: '827333383227',
     projectId: 'qalert-79441',
     storageBucket: 'qalert-79441.firebasestorage.app',
-    iosBundleId: 'com.alertify.joma',
+    iosBundleId: 'com.qalert.joma',
   );
 }
