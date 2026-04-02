@@ -7,7 +7,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:joma/mainscreen.dart';
 import 'services/analytics.dart';
 
-import 'completeProfilePage.dart';
 
 class GoogleSignUpPage extends StatefulWidget {
   const GoogleSignUpPage({super.key});
