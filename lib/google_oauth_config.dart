@@ -10,7 +10,7 @@
 
 /// iOS OAuth client — must match `<key>GIDClientID</key>` in ios/Runner/Info.plist
 const String kGoogleIosClientId =
-    '827333383227-fis86e083fcrrmnvjhh3ve2i50e66npv.apps.googleusercontent.com';
+    '827333383227-6itkbugt49tegj94lipf98qb1258oin2.apps.googleusercontent.com';
 
 /// Web OAuth client — must match `<key>GIDServerClientID</key>` and backend token audience
 const String kGoogleWebServerClientId =
