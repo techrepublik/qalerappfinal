@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/foundation.dart' show defaultTargetPlatform;
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, kDebugMode, kIsWeb, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -10,17 +11,17 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'firebase_options.dart';
+import 'firebase_options.dart' show DefaultFirebaseOptions;
+import 'services/fcm_backend.dart';
 import 'loading.dart';
 import 'mainScreen.dart';
 import 'services/analytics.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:permission_handler/permission_handler.dart';
 
-
-
-final GlobalKey<ScaffoldMessengerState> snackbarKey = GlobalKey<ScaffoldMessengerState>();
+final GlobalKey<ScaffoldMessengerState> snackbarKey =
+    GlobalKey<ScaffoldMessengerState>();
 const Color mintGreen = Color(0xFF00BFA5);
-
 
 // The Channel ID MUST match the one in your Next.js backend
 const AndroidNotificationChannel channel = AndroidNotificationChannel(
@@ -31,8 +32,8 @@ const AndroidNotificationChannel channel = AndroidNotificationChannel(
   playSound: true,
 );
 
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 // ✅ Background handler — must be top-level
 @pragma('vm:entry-point')
@@ -48,8 +49,30 @@ void main() async {
   await dotenv.load(fileName: ".env");
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
+  if (kDebugMode &&
+      !kIsWeb &&
+      defaultTargetPlatform == TargetPlatform.iOS &&
+      DefaultFirebaseOptions.ios.appId.contains('deadbeef')) {
+    debugPrint(
+      'iOS Firebase appId is still a placeholder — FCM on iOS will not work until you run '
+      'flutterfire configure or set GOOGLE_APP_ID in firebase_options.dart (see GoogleService-Info.plist).',
+    );
+  }
+
+  await flutterLocalNotificationsPlugin.initialize(
+    const InitializationSettings(
+      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      iOS: DarwinInitializationSettings(
+        requestAlertPermission: false,
+        requestBadgePermission: false,
+        requestSoundPermission: false,
+      ),
+    ),
+  );
+
   await flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
       ?.createNotificationChannel(channel);
 
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
@@ -76,14 +99,14 @@ void main() async {
 
 /// iOS: [FirebaseMessaging.getToken] needs APNs token; poll briefly after permission.
 Future<void> _waitForApnsToken(FirebaseMessaging messaging) async {
-  for (var i = 0; i < 20; i++) {
+  for (var i = 0; i < 40; i++) {
     final apns = await messaging.getAPNSToken();
     if (apns != null) return;
     await Future.delayed(const Duration(milliseconds: 250));
   }
-  debugPrint('APNS token not received in time (simulator has no APNs); FCM may fail until device.');
+  debugPrint(
+      'APNS token not received in time (simulator has no APNs); FCM may fail until device.');
 }
-
 
 class QAlertLanding extends StatefulWidget {
   const QAlertLanding({super.key});
@@ -97,7 +120,7 @@ class _QAlertLandingState extends State<QAlertLanding> {
   bool _isServerOnline = false;
   bool _isInternetConnected = true;
   Timer? _statusTimer;
-  String _munName = '';
+  final String _munName = '';
 
   @override
   void initState() {
@@ -106,49 +129,40 @@ class _QAlertLandingState extends State<QAlertLanding> {
     _setupFirebaseNotifications(); // ✅
   }
 
-  final String _apiKey = dotenv.env['MOBILE_API_KEY'] ?? '';
-
-
-  Future<void> _sendTokenToBackend(String token) async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? userId = prefs.getString('user_id');
-    final String? lguCode = prefs.getString('lguCode');
-
-
-    if (userId == null || lguCode == null) return;
-
-    try {
-      await http.post(
-        Uri.parse('https://ems.qalertapp.com/api/v2/fcm/register'),
-        headers: {'Content-Type': 'application/json', "x-api-key": _apiKey},
-        body: jsonEncode({
-          'userId': userId,
-          'lguCode': lguCode,
-          'token': token,
-        }),
-      );
-
-      print("sending v2 api fcm-token to be save $userId and $lguCode");
-
-    } catch (e) {
-      debugPrint('❌ Failed to send FCM token: $e');
-    }
-  }
-
   // ✅ FCM Setup
   Future<void> _setupFirebaseNotifications() async {
     final messaging = FirebaseMessaging.instance;
 
+    // Android 13+: must grant POST_NOTIFICATIONS or alerts may not appear.
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+      final n = await Permission.notification.status;
+      if (!n.isGranted) {
+        await Permission.notification.request();
+      }
+    }
+
     final settings = await messaging.requestPermission(
-      alert: true, badge: true, sound: true,
+      alert: true,
+      badge: true,
+      sound: true,
     );
 
-    // Foreground listener
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      RemoteNotification? notification = message.notification;
-      AndroidNotification? android = message.notification?.android;
+    // iOS: show notification banner/sound when app is in foreground (Android uses local plugin below).
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      await messaging.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+    }
 
-      if (notification != null && android != null) {
+    // Foreground: Android needs a local notification; iOS uses setForegroundNotificationPresentationOptions.
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      final RemoteNotification? notification = message.notification;
+      if (notification == null) return;
+
+      if (defaultTargetPlatform == TargetPlatform.android &&
+          notification.android != null) {
         flutterLocalNotificationsPlugin.show(
           notification.hashCode,
           notification.title,
@@ -158,7 +172,7 @@ class _QAlertLandingState extends State<QAlertLanding> {
               channel.id,
               channel.name,
               channelDescription: channel.description,
-              icon: '@mipmap/ic_launcher', // Ensure this exists
+              icon: '@mipmap/ic_launcher',
               importance: Importance.max,
               priority: Priority.high,
               playSound: true,
@@ -169,7 +183,9 @@ class _QAlertLandingState extends State<QAlertLanding> {
     });
 
     if (settings.authorizationStatus != AuthorizationStatus.authorized &&
-        settings.authorizationStatus != AuthorizationStatus.provisional) return;
+        settings.authorizationStatus != AuthorizationStatus.provisional) {
+      return;
+    }
 
     // iOS: FCM token requires APNs registration first; avoid apns-token-not-set
     if (defaultTargetPlatform == TargetPlatform.iOS) {
@@ -194,16 +210,14 @@ class _QAlertLandingState extends State<QAlertLanding> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('fcm_token', token);
 
-      await _sendTokenToBackend(token); // ✅ add this
-
+      await registerFcmTokenWithBackend();
     }
 
     messaging.onTokenRefresh.listen((newToken) async {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('fcm_token', newToken);
 
-      await _sendTokenToBackend(newToken); // ✅ add this
-
+      await registerFcmTokenWithBackend();
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationNavigation);
@@ -221,15 +235,22 @@ class _QAlertLandingState extends State<QAlertLanding> {
     // TODO: Add routing logic based on message.data
   }
 
-
   Future<void> _clearAndLogout() async {
     final prefs = await SharedPreferences.getInstance();
 
-    final keysToRemove = ['email', 'userId', 'phone','name','role','municipality','barangay','province'];
+    final keysToRemove = [
+      'email',
+      'userId',
+      'phone',
+      'name',
+      'role',
+      'municipality',
+      'barangay',
+      'province'
+    ];
     for (String key in keysToRemove) {
       await prefs.remove(key);
     }
-
 
     if (mounted) {
       Navigator.pushReplacement(
@@ -238,8 +259,6 @@ class _QAlertLandingState extends State<QAlertLanding> {
       );
     }
   }
-
-
 
   Future<void> _initializeAppFlow() async {
     final prefs = await SharedPreferences.getInstance();
@@ -251,7 +270,8 @@ class _QAlertLandingState extends State<QAlertLanding> {
 
     final String? email = prefs.getString('email');
     final String? lguCode = prefs.getString('lguCode');
-    final String? userId = prefs.getString('user_id'); // make sure this is saved on login
+    final String? userId =
+        prefs.getString('user_id'); // make sure this is saved on login
 
     if (mounted) {
       final bool hasEmail = email != null && email.isNotEmpty;
@@ -287,8 +307,6 @@ class _QAlertLandingState extends State<QAlertLanding> {
     }
   }
 
-
-
   Future<void> _showDisclaimerDialog(SharedPreferences prefs) async {
     return showDialog(
       context: context,
@@ -313,7 +331,8 @@ class _QAlertLandingState extends State<QAlertLanding> {
               if (mounted) Navigator.pop(context);
             },
             child: const Text('I UNDERSTAND',
-                style: TextStyle(fontWeight: FontWeight.bold, color: mintGreen)),
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, color: mintGreen)),
           ),
         ],
       ),
@@ -322,17 +341,21 @@ class _QAlertLandingState extends State<QAlertLanding> {
 
   void _startSystemHeartbeat() {
     _checkStatus();
-    _statusTimer = Timer.periodic(const Duration(seconds: 20), (_) => _checkStatus());
+    _statusTimer =
+        Timer.periodic(const Duration(seconds: 20), (_) => _checkStatus());
   }
 
   Future<void> _checkStatus() async {
     final internet = await InternetConnection().hasInternetAccess;
     bool server = false;
     try {
-      final res = await http.get(Uri.parse('https://ems.qalertapp.com'))
+      final res = await http
+          .get(Uri.parse('https://ems.qalertapp.com'))
           .timeout(const Duration(seconds: 5));
       server = res.statusCode < 500;
-    } catch (_) { server = false; }
+    } catch (_) {
+      server = false;
+    }
 
     if (mounted) {
       setState(() {
@@ -344,7 +367,8 @@ class _QAlertLandingState extends State<QAlertLanding> {
 
   Future<void> _handleGetStarted() async {
     setState(() => _isLoading = true);
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoadingPage()));
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (_) => const LoadingPage()));
     if (mounted) setState(() => _isLoading = false);
   }
 
@@ -377,8 +401,10 @@ class _QAlertLandingState extends State<QAlertLanding> {
                     child: Image.asset(
                       'assets/images/qalert.png',
                       fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) =>
-                      const Icon(Icons.emergency_rounded, size: 40, color: mintGreen),
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                          Icons.emergency_rounded,
+                          size: 40,
+                          color: mintGreen),
                     ),
                   ),
                 ),
@@ -390,14 +416,21 @@ class _QAlertLandingState extends State<QAlertLanding> {
               child: Column(
                 children: [
                   Text(_munName.toUpperCase(),
-                      style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, color: Colors.grey, fontSize: 12)),
+                      style: const TextStyle(
+                          letterSpacing: 2,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                          fontSize: 12)),
                   const SizedBox(height: 8),
                   const Text('Q-ALERT',
-                      style: TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: Color(0xFF1A1A1A))),
+                      style: TextStyle(
+                          fontSize: 36,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF1A1A1A))),
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 50, vertical: 5),
                     child: Text(
-                    'One App, One Alert',
+                      'One App, One Alert',
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.black54, height: 1.4),
                     ),
@@ -417,11 +450,20 @@ class _QAlertLandingState extends State<QAlertLanding> {
                     backgroundColor: mintGreen,
                     foregroundColor: Colors.white,
                     elevation: 0,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
                   ),
                   child: _isLoading
-                      ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : const Text('GET STARTED', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.1)),
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                              color: Colors.white, strokeWidth: 2))
+                      : const Text('GET STARTED',
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.1)),
                 ),
               ),
             ),
@@ -430,6 +472,4 @@ class _QAlertLandingState extends State<QAlertLanding> {
       ),
     );
   }
-
 }
-

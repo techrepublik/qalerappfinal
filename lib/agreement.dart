@@ -52,7 +52,8 @@ class _UserAgreementScreenState extends State<UserAgreementScreen> {
         color: const Color(0xFFFFFFFF),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -93,15 +94,19 @@ class _UserAgreementScreenState extends State<UserAgreementScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Disclaimer", style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF424242),
-                          )),
+                          Text("Disclaimer",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF424242),
+                              )),
                           SizedBox(height: 10),
                           Text(
                             "Welcome to Q-ALERT! This app helps you stay informed about local emergencies and report incidents. It is an independent app and is not affiliated with, endorsed by, or representative of any government entity.\n\n",
-                            style: TextStyle(fontSize: 14, color: Color(0xFF424242), height: 1.5),
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: Color(0xFF424242),
+                                height: 1.5),
                             textAlign: TextAlign.justify,
                           ),
                           Text(
@@ -115,10 +120,13 @@ class _UserAgreementScreenState extends State<UserAgreementScreen> {
                           SizedBox(height: 10),
                           Text(
                             "Welcome to Q-ALERT. By using Q-ALERT, you agree to the terms outlined in this User Agreement and the Privacy Policy linked below...\n\n"
-                                "• Acceptance of Terms: By installing and using Q-ALERT, you agree to comply with this agreement.\n\n"
-                                "• Use of the App: Q-ALERT is intended to assist users in requesting emergency help.\n\n"
-                                "• Data Sharing: You consent to the collection and sharing of your data for emergency response.",
-                            style: TextStyle(fontSize: 14, color: Color(0xFF424242), height: 1.5),
+                            "• Acceptance of Terms: By installing and using Q-ALERT, you agree to comply with this agreement.\n\n"
+                            "• Use of the App: Q-ALERT is intended to assist users in requesting emergency help.\n\n"
+                            "• Data Sharing: You consent to the collection and sharing of your data for emergency response.",
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: Color(0xFF424242),
+                                height: 1.5),
                             textAlign: TextAlign.justify,
                           ),
                         ],
@@ -132,7 +140,8 @@ class _UserAgreementScreenState extends State<UserAgreementScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.link, color: emeraldGreen, size: 20), // Updated
+                      Icon(Icons.link,
+                          color: emeraldGreen, size: 20), // Updated
                       const SizedBox(width: 5),
                       Text(
                         "Read our Privacy Policy",
@@ -166,7 +175,8 @@ class _UserAgreementScreenState extends State<UserAgreementScreen> {
                     const Flexible(
                       child: Text(
                         "I agree to the User Agreement and Privacy Policy",
-                        style: TextStyle(fontSize: 14, color: Color(0xFF424242)),
+                        style:
+                            TextStyle(fontSize: 14, color: Color(0xFF424242)),
                       ),
                     ),
                   ],
@@ -180,7 +190,10 @@ class _UserAgreementScreenState extends State<UserAgreementScreen> {
                       gradient: LinearGradient(
                         colors: _isChecked
                             ? [emeraldGreen, darkEmerald] // Updated
-                            : [const Color(0xFFB0BEC5), const Color(0xFFCFD8DC)],
+                            : [
+                                const Color(0xFFB0BEC5),
+                                const Color(0xFFCFD8DC)
+                              ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -197,14 +210,16 @@ class _UserAgreementScreenState extends State<UserAgreementScreen> {
                     child: ElevatedButton(
                       onPressed: _isChecked
                           ? () async {
-                        await _setUserAgreed();
-                        if (mounted) {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => LocationAgreementScreen()),
-                          );
-                        }
-                      }
+                              await _setUserAgreed();
+                              if (mounted) {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const LocationAgreementScreen()),
+                                );
+                              }
+                            }
                           : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,

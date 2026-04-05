@@ -353,19 +353,19 @@ class _HospitalListViewState extends State<HospitalListView> {
                                     child: InkWell(
                                       onTap: () => _openUrl('tel:${hospital.phone}'),
                                       borderRadius: BorderRadius.circular(12),
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+                                      child: const Padding(
+                                        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 4),
                                         child: Row(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            const Icon(Icons.phone_rounded, color: Color(0xFF10B981), size: 16),
-                                            const SizedBox(width: 4),
+                                            Icon(Icons.phone_rounded, color: Color(0xFF10B981), size: 16),
+                                            SizedBox(width: 4),
                                             Flexible(
                                               child: Text(
                                                 'Dial Now',
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
-                                                style: const TextStyle(color: Color(0xFF10B981), fontSize: 12, fontWeight: FontWeight.w700),
+                                                style: TextStyle(color: Color(0xFF10B981), fontSize: 12, fontWeight: FontWeight.w700),
                                               ),
                                             ),
                                           ],

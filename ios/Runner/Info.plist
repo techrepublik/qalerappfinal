@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	<!-- Google Maps SDK for iOS — paste your key here (Google Cloud: enable Maps SDK for iOS). See ios/MAPS_IOS_API_KEY.txt -->
 	<key>GMSApiKey</key>
 	<string>AIzaSyCms4SIjV6BRcHuGPQi7ZqQoXxx_cAHYi4</string>

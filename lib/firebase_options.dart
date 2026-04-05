@@ -1,5 +1,5 @@
 // Generated for this repo so `flutter analyze` / builds succeed.
-// After you add the iOS app in Firebase Console (bundle id: com.alertify.joma),
+// After you add the iOS app in Firebase Console (bundle id: com.qalert.joma),
 // run: `dart pub global activate flutterfire_cli` then
 // `flutterfire configure --project=qalert-79441` and replace this file, or edit
 // the `ios` entry below using values from GoogleService-Info.plist.
@@ -56,11 +56,13 @@ class DefaultFirebaseOptions {
     storageBucket: 'qalert-79441.firebasestorage.app',
   );
 
-  /// Replace `appId` (and apiKey if different) with values from Firebase after
-  /// registering the iOS app. Add `GoogleService-Info.plist` to `ios/Runner/`.
+  /// **iOS FCM requires a real `appId`.** The value below is a placeholder.
+  /// In Firebase Console → Project settings → Your apps → Add iOS app with
+  /// bundle ID `com.qalert.joma`, then either:
+  /// - Run `dart pub global run flutterfire_cli:flutterfire configure` (needs Firebase CLI), or
+  /// - Replace `appId` with `GOOGLE_APP_ID` from the downloaded `GoogleService-Info.plist`.
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCe_NSy8P6rHiPwAaVxPfzDvJEjMFkqXV4',
-    // Placeholder — replace with real GOOGLE_APP_ID from GoogleService-Info.plist
     appId: '1:827333383227:ios:deadbeefdeadbeefdeadbeef',
     messagingSenderId: '827333383227',
     projectId: 'qalert-79441',

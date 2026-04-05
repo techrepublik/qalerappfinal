@@ -14,9 +14,6 @@ class LoadingPage extends StatefulWidget {
 }
 
 class _LoadingPageState extends State<LoadingPage> {
-
-
-
   @override
   void initState() {
     super.initState();
@@ -29,42 +26,44 @@ class _LoadingPageState extends State<LoadingPage> {
     return userAgreed;
   }
 
-
   Future<void> checkUserProfile() async {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
 
-      // Pull the data we saved in GoogleSignUpPage
-      String email = prefs.getString('email') ?? "";
-      String phone = prefs.getString('phone') ?? "";
+    // Pull the data we saved in GoogleSignUpPage
+    String email = prefs.getString('email') ?? "";
+    String phone = prefs.getString('phone') ?? "";
 
-      bool userAgreed = prefs.getBool('userAgreed') ?? false;
-      bool isLoggedIn = prefs.getBool('is_logged_in') ?? false; // Better to check this
+    bool userAgreed = prefs.getBool('userAgreed') ?? false;
+    bool isLoggedIn =
+        prefs.getBool('is_logged_in') ?? false; // Better to check this
 
+    // Make sure the widget is still in the tree before navigating
+    if (!mounted) return;
 
-      // Make sure the widget is still in the tree before navigating
-      if (!mounted) return;
-
-      if (!userAgreed) {
-        // 1. Send to Agreement Screen if not agreed
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => UserAgreementScreen()),
-        );
-      } else if (!isLoggedIn || email.isEmpty || phone.isEmpty ) {
-        // 2. Syntax fixed to 'else if'.
-        // Go to Login if not logged in OR email is missing.
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const GoogleSignUpPage()), // Your new Google page
-        );
-      } else {
-        // 3. User is logged in and has agreed -> Go Home
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const MainScreen()), // Changed from QAlertWithUpdates
-        );
-      }
+    if (!userAgreed) {
+      // 1. Send to Agreement Screen if not agreed
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const UserAgreementScreen()),
+      );
+    } else if (!isLoggedIn || email.isEmpty || phone.isEmpty) {
+      // 2. Syntax fixed to 'else if'.
+      // Go to Login if not logged in OR email is missing.
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (_) => const GoogleSignUpPage()), // Your new Google page
+      );
+    } else {
+      // 3. User is logged in and has agreed -> Go Home
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (_) =>
+                const MainScreen()), // Changed from QAlertWithUpdates
+      );
     }
+  }
 
   /// Google Play in-app update API — Android only (no iOS native implementation).
   Future<void> checkForUpdate() async {
@@ -84,8 +83,6 @@ class _LoadingPageState extends State<LoadingPage> {
       await checkUserProfile();
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {

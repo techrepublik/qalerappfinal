@@ -8,6 +8,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:joma/google_oauth_config.dart';
 import 'package:joma/mainscreen.dart';
 import 'services/analytics.dart';
+import 'services/fcm_backend.dart';
 
 class GoogleSignUpPage extends StatefulWidget {
   const GoogleSignUpPage({super.key});
@@ -94,6 +95,8 @@ class _GoogleSignUpPageState extends State<GoogleSignUpPage> {
           lguCode: userData['lguCode'],
           screen: 'GoogleSignUp',
         );
+
+        await registerFcmTokenWithBackend();
 
         _showSuccess('Welcome back, ${userData['name']}');
 

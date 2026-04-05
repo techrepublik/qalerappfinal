@@ -386,7 +386,7 @@ class _NewsCardState extends State<NewsCard> {
       {String? commentText, bool silent = false}) async {
     final prefs = await SharedPreferences.getInstance();
     final String? userId = prefs.getString('user_id');
-    final String? userName = prefs.getString('name') ?? 'Guest';
+    final String userName = prefs.getString('name') ?? 'Guest';
 
     if (userId == null) {
       if (!silent) {
@@ -489,10 +489,10 @@ class _NewsCardState extends State<NewsCard> {
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
               children: [
-                CircleAvatar(
+                const CircleAvatar(
                   radius: 20,
-                  backgroundColor: const Color(0xFFD4F0E4),
-                  child: const Icon(Icons.person, color: darkMint),
+                  backgroundColor: Color(0xFFD4F0E4),
+                  child: Icon(Icons.person, color: darkMint),
                 ),
                 const SizedBox(width: 10),
                 Column(

@@ -79,8 +79,8 @@ class _ImageCaptureAppState extends State<ImageCaptureApp2> {
 
     print('mao nih LGUCode: $_currentLguCode');
 
-
-    _initialPosition = LatLng(double.parse(widget.latitude), double.parse(widget.longitude));
+    _initialPosition =
+        LatLng(double.parse(widget.latitude), double.parse(widget.longitude));
     _markers.add(
       Marker(
         markerId: const MarkerId('incident_location'),
@@ -122,8 +122,7 @@ class _ImageCaptureAppState extends State<ImageCaptureApp2> {
         if (compressed != null) {
           final resp = await cloudinary.upload(
               file: compressed.path,
-              resourceType: CloudinaryResourceType.image
-          );
+              resourceType: CloudinaryResourceType.image);
           if (resp.isSuccessful) photoUrl = resp.secureUrl ?? "";
         }
       }
@@ -148,9 +147,10 @@ class _ImageCaptureAppState extends State<ImageCaptureApp2> {
       // Extract status safely
       final status = body['data']?['status'];
       if (status == null) {
-        throw Exception('Status not found');      }
+        throw Exception('Status not found');
+      }
 
-     print('this is $status');
+      print('this is $status');
 
       return status;
     } else {
@@ -191,18 +191,15 @@ class _ImageCaptureAppState extends State<ImageCaptureApp2> {
       }
 
       return incidentId;
-
     } catch (e) {
       print("Error checking incident: $e");
       return null;
     }
   }
 
-
   //submit incident report
 
   Future<void> _submitToNextJs(String photoUrl) async {
-
     print('photoURL $photoUrl');
     try {
       final Map<String, dynamic> emergencyData = {
@@ -227,7 +224,6 @@ class _ImageCaptureAppState extends State<ImageCaptureApp2> {
         body: jsonEncode(emergencyData),
       );
 
-
       if (response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
         final String newIncidentId = responseData['data']['_id'];
@@ -235,8 +231,8 @@ class _ImageCaptureAppState extends State<ImageCaptureApp2> {
         final prefs = await SharedPreferences.getInstance();
 
         await prefs.setString("active_incident_id", newIncidentId);
-        await prefs.setInt("incident_time", DateTime.now().millisecondsSinceEpoch);
-
+        await prefs.setInt(
+            "incident_time", DateTime.now().millisecondsSinceEpoch);
 
         AnalyticsService.trackEvent(
           eventName: 'Submit Incident',
@@ -244,22 +240,21 @@ class _ImageCaptureAppState extends State<ImageCaptureApp2> {
           screen: 'Report Incident Screen',
         );
 
-
         if (mounted) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => EmergencyChatPage(incidentId: newIncidentId, userName: _currentUserName),
+              builder: (context) => EmergencyChatPage(
+                  incidentId: newIncidentId, userName: _currentUserName),
             ),
           );
         }
       } else if (response.statusCode == 429) {
-
-        Fluttertoast.showToast(msg: "Too many reports sent recently. Please wait a few minutes.");
-
+        Fluttertoast.showToast(
+            msg: "Too many reports sent recently. Please wait a few minutes.");
       } else {
-
-        Fluttertoast.showToast(msg: "Complete your profile in the Profile page.");
+        Fluttertoast.showToast(
+            msg: "Complete your profile in the Profile page.");
       }
     } catch (e) {
       Fluttertoast.showToast(msg: "Network error. Connection failed.");
@@ -269,9 +264,12 @@ class _ImageCaptureAppState extends State<ImageCaptureApp2> {
   }
 
   Future<File?> _compressImage(File image) async {
-    final String targetPath = image.path.replaceAll(RegExp(r'\.(jpg|jpeg|png)$'), '_compressed.jpg');
+    final String targetPath =
+        image.path.replaceAll(RegExp(r'\.(jpg|jpeg|png)$'), '_compressed.jpg');
     final XFile? result = await FlutterImageCompress.compressAndGetFile(
-      image.absolute.path, targetPath, quality: 70,
+      image.absolute.path,
+      targetPath,
+      quality: 70,
     );
     return result != null ? File(result.path) : null;
   }
@@ -285,7 +283,8 @@ class _ImageCaptureAppState extends State<ImageCaptureApp2> {
       body: Stack(
         children: [
           GoogleMap(
-            initialCameraPosition: CameraPosition(target: _initialPosition, zoom: 17),
+            initialCameraPosition:
+                CameraPosition(target: _initialPosition, zoom: 17),
             markers: _markers,
             onMapCreated: (controller) => mapController = controller,
             myLocationButtonEnabled: false,
@@ -311,7 +310,12 @@ class _ImageCaptureAppState extends State<ImageCaptureApp2> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildPhotoPreview(),
-                const Text("INCIDENT TYPE", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1.2)),
+                const Text("INCIDENT TYPE",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        letterSpacing: 1.2)),
                 const SizedBox(height: 10),
                 _buildEmergencyGrid(),
                 const SizedBox(height: 20),
@@ -342,52 +346,61 @@ class _ImageCaptureAppState extends State<ImageCaptureApp2> {
                 borderRadius: BorderRadius.circular(20),
                 side: BorderSide(color: Colors.white.withOpacity(0.3)),
               ),
-              textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+              textStyle:
+                  const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
             ),
           ),
           const SizedBox(height: 12),
-
-          const Text("REPORTING FROM", style: TextStyle(color: Colors.white70, fontSize: 10, letterSpacing: 1.5)),
+          const Text("REPORTING FROM",
+              style: TextStyle(
+                  color: Colors.white70, fontSize: 10, letterSpacing: 1.5)),
           Text("${widget.latitude}, ${widget.longitude}",
-              style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(color: Colors.red.withOpacity(0.8), borderRadius: BorderRadius.circular(5)),
+            decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.8),
+                borderRadius: BorderRadius.circular(5)),
             child: Text("LGU: $_currentLguCode".toUpperCase(),
-                style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold)),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
+              FutureBuilder<String?>(
+                future: getValidIncidentId(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData || snapshot.data == null) {
+                    return const SizedBox(); // hide chat button
+                  }
 
-            FutureBuilder<String?>(
-              future: getValidIncidentId(),
-              builder: (context, snapshot) {
-
-                if (!snapshot.hasData || snapshot.data == null) {
-                  return SizedBox(); // hide chat button
-                }
-
-                return FloatingActionButton.extended(
-                  icon: Icon(Icons.chat),
-                  label: Text("Active Chat Report!"),
-                  backgroundColor: Colors.yellow,
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            EmergencyChatPage(incidentId: snapshot.data!, userName: _currentUserName,),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-
-          ],)
-
+                  return FloatingActionButton.extended(
+                    icon: const Icon(Icons.chat),
+                    label: const Text("Active Chat Report!"),
+                    backgroundColor: Colors.yellow,
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EmergencyChatPage(
+                            incidentId: snapshot.data!,
+                            userName: _currentUserName,
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
+          )
         ],
       ),
     );
@@ -415,7 +428,8 @@ class _ImageCaptureAppState extends State<ImageCaptureApp2> {
                 showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
                     title: Row(
                       children: [
                         Icon(Icons.lock_outline, color: Colors.red.shade800),
@@ -425,14 +439,16 @@ class _ImageCaptureAppState extends State<ImageCaptureApp2> {
                     ),
                     content: Text(
                       "Incident Reporting is not yet available in ${_currentLguCode.toUpperCase()}. "
-                          "Please contact your LGUs to request this feature.",
+                      "Please contact your LGUs to request this feature.",
                     ),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context),
                         child: Text(
                           "Got it",
-                          style: TextStyle(color: Colors.red.shade800, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              color: Colors.red.shade800,
+                              fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
@@ -449,19 +465,22 @@ class _ImageCaptureAppState extends State<ImageCaptureApp2> {
               height: 75,
               margin: const EdgeInsets.only(right: 12),
               decoration: BoxDecoration(
-                color: sel ? Colors.red.shade800 : Colors.white.withOpacity(0.9),
+                color:
+                    sel ? Colors.red.shade800 : Colors.white.withOpacity(0.9),
                 borderRadius: BorderRadius.circular(15),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(item['i'] as IconData, color: sel ? Colors.white : Colors.red.shade800, size: 28),
+                  Icon(item['i'] as IconData,
+                      color: sel ? Colors.white : Colors.red.shade800,
+                      size: 28),
                   const SizedBox(height: 4),
                   Text(item['t'] as String,
-                      style: TextStyle(color: sel ? Colors.white : Colors.black87, fontSize: 10, fontWeight: FontWeight.bold)),
-
-
-
+                      style: TextStyle(
+                          color: sel ? Colors.white : Colors.black87,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
@@ -478,25 +497,35 @@ class _ImageCaptureAppState extends State<ImageCaptureApp2> {
           OutlinedButton.icon(
             onPressed: _pickImage,
             icon: const Icon(Icons.camera_alt, color: Colors.white),
-            label: const Text("ADD PHOTO (Optional)", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            label: const Text("ADD PHOTO (Optional)",
+                style: TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold)),
             style: OutlinedButton.styleFrom(
               minimumSize: const Size(double.infinity, 50),
               side: const BorderSide(color: Colors.white, width: 2),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
             ),
           ),
         const SizedBox(height: 5),
         ElevatedButton(
-          onPressed: (selectedEmergency.isEmpty || isLoading) ? null : _uploadAndSubmit,
+          onPressed: (selectedEmergency.isEmpty || isLoading)
+              ? null
+              : _uploadAndSubmit,
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red.shade900,
             disabledBackgroundColor: Colors.grey.shade800,
             minimumSize: const Size(double.infinity, 60),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             elevation: 5,
           ),
           child: const Text("SEND EMERGENCY HELP",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: 1.1)),
+              style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  letterSpacing: 1.1)),
         ),
       ],
     );
@@ -507,13 +536,23 @@ class _ImageCaptureAppState extends State<ImageCaptureApp2> {
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(color: Colors.white.withOpacity(0.9), borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.9),
+          borderRadius: BorderRadius.circular(12)),
       child: Row(
         children: [
-          ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.file(_image!, width: 50, height: 50, fit: BoxFit.cover)),
+          ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.file(_image!,
+                  width: 50, height: 50, fit: BoxFit.cover)),
           const SizedBox(width: 15),
-          const Expanded(child: Text("Evidence Attached", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87))),
-          IconButton(icon: const Icon(Icons.cancel, color: Colors.red), onPressed: () => setState(() => _image = null)),
+          const Expanded(
+              child: Text("Evidence Attached",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.black87))),
+          IconButton(
+              icon: const Icon(Icons.cancel, color: Colors.red),
+              onPressed: () => setState(() => _image = null)),
         ],
       ),
     );
@@ -526,8 +565,11 @@ class _ImageCaptureAppState extends State<ImageCaptureApp2> {
           gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Colors.black.withOpacity(0.8), Colors.transparent, Colors.black.withOpacity(0.95)]
-          ),
+              colors: [
+                Colors.black.withOpacity(0.8),
+                Colors.transparent,
+                Colors.black.withOpacity(0.95)
+              ]),
         ),
       ),
     );
@@ -542,7 +584,9 @@ class _ImageCaptureAppState extends State<ImageCaptureApp2> {
           children: [
             CircularProgressIndicator(color: Colors.white),
             SizedBox(height: 20),
-            Text("Submitting Report...", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            Text("Submitting Report...",
+                style: TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold)),
           ],
         ),
       ),

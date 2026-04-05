@@ -18,8 +18,8 @@ import 'models/facility.dart';
 import 'models/lgucontact.dart';
 import 'family_contacts.dart';
 import 'services/analytics.dart';
+import 'services/fcm_backend.dart';
 import 'newHospital.dart'; // Make sure the file name matches
-
 
 /// Q-ALERT with Professional UI/UX Design
 class QAlertWithUpdates extends StatefulWidget {
@@ -30,8 +30,8 @@ class QAlertWithUpdates extends StatefulWidget {
   State<QAlertWithUpdates> createState() => _QAlertWithUpdatesState();
 }
 
-class _QAlertWithUpdatesState extends State<QAlertWithUpdates> with SingleTickerProviderStateMixin,
-    WidgetsBindingObserver {
+class _QAlertWithUpdatesState extends State<QAlertWithUpdates>
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   final H3 h3 = const H3Factory().load();
   final Location location = Location();
 
@@ -48,7 +48,6 @@ class _QAlertWithUpdatesState extends State<QAlertWithUpdates> with SingleTicker
   String userName = '';
   String userPhone = '';
 
-
   // Found LGU data
   List<LGUContact> foundLGUs = [];
   LGUContact? selectedLGU;
@@ -59,8 +58,6 @@ class _QAlertWithUpdatesState extends State<QAlertWithUpdates> with SingleTicker
   // Update tracking
   bool updateAvailable = false;
   int pendingUpdates = 0;
-
-
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -89,7 +86,6 @@ class _QAlertWithUpdatesState extends State<QAlertWithUpdates> with SingleTicker
       lguCode: lguCode ?? 'NOT_SET',
       screen: 'Home Screen',
     );
-
   }
 
   @override
@@ -99,8 +95,6 @@ class _QAlertWithUpdatesState extends State<QAlertWithUpdates> with SingleTicker
       _checkForUpdates();
     }
   }
-
-
 
   @override
   void dispose() {
@@ -113,28 +107,24 @@ class _QAlertWithUpdatesState extends State<QAlertWithUpdates> with SingleTicker
 
   // final String apiBaseUrl = "http://192.168.1.11:3000";
 
-
   Future<void> _loadUserData() async {
-
     final prefs = await SharedPreferences.getInstance();
 
     // Use the null-coalescing operator (??) to provide fallbacks
-    final String user_id = prefs.getString('user_id') ?? '';
+    final String userId = prefs.getString('user_id') ?? '';
     final String name = prefs.getString('name') ?? '';
     final String phone = prefs.getString('phone') ?? '';
 
     if (mounted) {
       setState(() {
-        userId = user_id;
+        userId = userId;
         userName = name;
         userPhone = phone;
       });
     }
   }
 
-
   Future<void> _submitToNextCalling() async {
-
     try {
       final Map<String, dynamic> emergencyData = {
         "userId": userId,
@@ -159,71 +149,62 @@ class _QAlertWithUpdatesState extends State<QAlertWithUpdates> with SingleTicker
       );
       final responseData = jsonDecode(response.body);
     } catch (e) {
-          debugPrint('error in sending dial button $e');
-    } finally {
-
-    }
+      debugPrint('error in sending dial button $e');
+    } finally {}
   }
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: const Color(0xFFF8F9FA),
-        // appBar: _buildAppBar(),
-        body: SafeArea(
-          child: RefreshIndicator(
-            onRefresh: () async {
-              await _getUserLocation();
-              await _checkForUpdates();
-            },
-            color: const Color(0xFFDC143C),
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: Column(
-                  children: [
-                    if (updateAvailable) _buildUpdateBanner(),
-                    // _buildSearchBox(),
-                    GreetingBanner(
-                        userName: userName,
-                        lat: currentLat,
-                        lon: currentLon),
-                    // HANDLE LOADING STATE
-                    if (lguCode.isNotEmpty &&
-                        foundLGUs.isNotEmpty &&
-                        currentLat != null &&
-                        currentLon != null) ...[
-                      AlertScreen(
-                        lguCode: lguCode,
-                        userLat: currentLat!,
-                        userLng: currentLon!,
-                      ),
-                      HospitalListView(
-                        userLat: currentLat!,
-                        userLng: currentLon!,
-                        lguCode: lguCode,
-                      ),
-                    ],
-
-
-                    _buildFamilyContact(),
-                    if (foundLGUs.isNotEmpty)
-                      _buildEmergencySection(),
-                    if (isLoading) const LGUCardSkeleton(),
-                    const SizedBox(height: 80),
+      backgroundColor: const Color(0xFFF8F9FA),
+      // appBar: _buildAppBar(),
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: () async {
+            await _getUserLocation();
+            await _checkForUpdates();
+          },
+          color: const Color(0xFFDC143C),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: FadeTransition(
+              opacity: _fadeAnimation,
+              child: Column(
+                children: [
+                  if (updateAvailable) _buildUpdateBanner(),
+                  // _buildSearchBox(),
+                  GreetingBanner(
+                      userName: userName, lat: currentLat, lon: currentLon),
+                  // HANDLE LOADING STATE
+                  if (lguCode.isNotEmpty &&
+                      foundLGUs.isNotEmpty &&
+                      currentLat != null &&
+                      currentLon != null) ...[
+                    AlertScreen(
+                      lguCode: lguCode,
+                      userLat: currentLat!,
+                      userLng: currentLon!,
+                    ),
+                    HospitalListView(
+                      userLat: currentLat!,
+                      userLng: currentLon!,
+                      lguCode: lguCode,
+                    ),
                   ],
-                ),
+
+                  _buildFamilyContact(),
+                  if (foundLGUs.isNotEmpty) _buildEmergencySection(),
+                  if (isLoading) const LGUCardSkeleton(),
+                  const SizedBox(height: 80),
+                ],
               ),
             ),
           ),
         ),
-        // floatingActionButton: _buildFloatingActionButton(),
-      );
-
+      ),
+      // floatingActionButton: _buildFloatingActionButton(),
+    );
   }
-
 
   Widget _buildUpdateBanner() {
     return Container(
@@ -290,7 +271,8 @@ class _QAlertWithUpdatesState extends State<QAlertWithUpdates> with SingleTicker
                     ],
                   ),
                 ),
-                const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
+                const Icon(Icons.arrow_forward_ios,
+                    color: Colors.white, size: 16),
               ],
             ),
           ),
@@ -299,94 +281,93 @@ class _QAlertWithUpdatesState extends State<QAlertWithUpdates> with SingleTicker
     );
   }
 
-
   Widget _buildFamilyContact() {
     return // Add this inside the Column in your main build method
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Material(
-          color: Colors.white,
+        Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        elevation: 2,
+        shadowColor: Colors.black.withOpacity(0.1),
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const FamilyContactsPage()),
+            );
+            AnalyticsService.trackEvent(
+              eventName: 'FamilyContact',
+              lguCode: lguCode,
+              screen: 'FamilyScreen',
+            );
+          },
           borderRadius: BorderRadius.circular(16),
-          elevation: 2,
-          shadowColor: Colors.black.withOpacity(0.1),
-          child: InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const FamilyContactsPage()),
-              );
-              AnalyticsService.trackEvent(
-                eventName: 'FamilyContact',
-                lguCode: lguCode,
-                screen: 'FamilyScreen',
-              );
-
-            },
-            borderRadius: BorderRadius.circular(16),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFDC143C).withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.family_restroom, color: Color(0xFFDC143C)),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFDC143C).withOpacity(0.1),
+                    shape: BoxShape.circle,
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "Family Emergency Contacts",
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF1A1A1A),
-                          ),
+                  child: const Icon(Icons.family_restroom,
+                      color: Color(0xFFDC143C)),
+                ),
+                const SizedBox(width: 16),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Family Emergency Contacts",
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1A1A1A),
                         ),
-                        Text(
-                          "Manage your personal safety circle",
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
-                          ),
+                      ),
+                      Text(
+                        "Manage your personal safety circle",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 8),
-                  const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-                ],
-              ),
+                ),
+                const SizedBox(width: 8),
+                const Icon(Icons.arrow_forward_ios,
+                    size: 16, color: Colors.grey),
+              ],
             ),
           ),
         ),
-      );
+      ),
+    );
   }
 
+  Widget _buildEmergencySection() {
+    final hasConflict = !isFallback && foundLGUs.length > 1;
 
- Widget _buildEmergencySection() {
-
-   final hasConflict = !isFallback && foundLGUs.length > 1;
-
-   // ✅ Completely separate widget — easy to debug independently
-   if (isFallback) {
-     return FallbackLGUSection(
-       lguList: foundLGUs,
-       lguCode: lguCode,
-       currentLat: currentLat,
-       currentLon: currentLon,
-     );
-   }
+    // ✅ Completely separate widget — easy to debug independently
+    if (isFallback) {
+      return FallbackLGUSection(
+        lguList: foundLGUs,
+        lguCode: lguCode,
+        currentLat: currentLat,
+        currentLon: currentLon,
+      );
+    }
 
     return Container(
       margin: const EdgeInsets.all(16),
@@ -404,11 +385,13 @@ class _QAlertWithUpdatesState extends State<QAlertWithUpdates> with SingleTicker
                   ],
                 ),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFF59E0B).withOpacity(0.3)),
+                border:
+                    Border.all(color: const Color(0xFFF59E0B).withOpacity(0.3)),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.warning_rounded, color: Color(0xFFF59E0B), size: 24),
+                  const Icon(Icons.warning_rounded,
+                      color: Color(0xFFF59E0B), size: 24),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -439,7 +422,6 @@ class _QAlertWithUpdatesState extends State<QAlertWithUpdates> with SingleTicker
             ),
             const SizedBox(height: 16),
           ],
-
           ...foundLGUs.map((lgu) => _buildLGUCard(lgu, hasConflict)),
         ],
       ),
@@ -485,8 +467,7 @@ class _QAlertWithUpdatesState extends State<QAlertWithUpdates> with SingleTicker
                 // Header
                 Row(
                   children: [
-
-              if (hasConflict)
+                    if (hasConflict)
                       Container(
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
@@ -496,7 +477,9 @@ class _QAlertWithUpdatesState extends State<QAlertWithUpdates> with SingleTicker
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
-                          isSelected ? Icons.check : Icons.radio_button_unchecked,
+                          isSelected
+                              ? Icons.check
+                              : Icons.radio_button_unchecked,
                           color: isSelected ? Colors.white : Colors.grey[400],
                           size: 16,
                         ),
@@ -517,14 +500,16 @@ class _QAlertWithUpdatesState extends State<QAlertWithUpdates> with SingleTicker
                     ),
                     if (!hasConflict)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
                           color: const Color(0xFF10B981).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: const Row(
                           children: [
-                            Icon(Icons.verified, color: Color(0xFF10B981), size: 14),
+                            Icon(Icons.verified,
+                                color: Color(0xFF10B981), size: 14),
                             SizedBox(width: 4),
                             Text(
                               'Location',
@@ -537,9 +522,7 @@ class _QAlertWithUpdatesState extends State<QAlertWithUpdates> with SingleTicker
                           ],
                         ),
                       ),
-
-
-    ],
+                  ],
                 ),
 
                 const SizedBox(height: 20),
@@ -561,60 +544,59 @@ class _QAlertWithUpdatesState extends State<QAlertWithUpdates> with SingleTicker
 
                 // Online Report Button (if paid)
                 // if (lgu.paid) ...[
-                  _buildOnlineReportButton(
-                    lgu: lgu,
-                    enabled: !hasConflict || isSelected,
-                  ),
+                _buildOnlineReportButton(
+                  lgu: lgu,
+                  enabled: !hasConflict || isSelected,
+                ),
 
-                  const SizedBox(height: 12),
+                const SizedBox(height: 12),
                 //],
 
-                _buildNewsPageButton(lgu: lgu, enabled: !hasConflict || isSelected),
+                _buildNewsPageButton(
+                    lgu: lgu, enabled: !hasConflict || isSelected),
 
                 const SizedBox(height: 20),
 
-
                 // Emergency Hotlines Section
                 if (lgu.hotlines.isNotEmpty) ...[
-                  _buildSectionHeader('Emergency Hotlines', Icons.phone_in_talk_rounded),
+                  _buildSectionHeader(
+                      'Emergency Hotlines', Icons.phone_in_talk_rounded),
                   const SizedBox(height: 12),
                   ...lgu.hotlines.map((hotline) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: _buildFacilityCard(
-                      icon: _getHotlineIcon(hotline.name),
-                      name: hotline.name,
-                      address: hotline.address,
-                      contact: hotline.contact,
-                      contact2: hotline.contact2,
-                      color: _getHotlineColor(hotline.name),
-                      enabled: !hasConflict || isSelected,
-                      facility: hotline,
-                    ),
-                  )),
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _buildFacilityCard(
+                          icon: _getHotlineIcon(hotline.name),
+                          name: hotline.name,
+                          address: hotline.address,
+                          contact: hotline.contact,
+                          contact2: hotline.contact2,
+                          color: _getHotlineColor(hotline.name),
+                          enabled: !hasConflict || isSelected,
+                          facility: hotline,
+                        ),
+                      )),
                 ],
 
                 // Hospitals Section
                 if (lgu.hospitals.isNotEmpty) ...[
                   const SizedBox(height: 20),
-                  _buildSectionHeader('Public Hospitals & Safe Zone', Icons.local_hospital_rounded),
+                  _buildSectionHeader('Public Hospitals & Safe Zone',
+                      Icons.local_hospital_rounded),
                   const SizedBox(height: 12),
                   ...lgu.hospitals.map((hospital) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: _buildFacilityCard(
-                      icon: Icons.local_hospital,
-                      name: hospital.name,
-                      address: hospital.address,
-                      contact: hospital.contact,
-                      contact2: hospital.contact2 ?? '',
-                      color: const Color(0xFF10B981),
-                      enabled: !hasConflict || isSelected,
-                      facility: hospital,
-                    ),
-                  )),
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _buildFacilityCard(
+                          icon: Icons.local_hospital,
+                          name: hospital.name,
+                          address: hospital.address,
+                          contact: hospital.contact,
+                          contact2: hospital.contact2 ?? '',
+                          color: const Color(0xFF10B981),
+                          enabled: !hasConflict || isSelected,
+                          facility: hospital,
+                        ),
+                      )),
                 ],
-
-
-
               ],
             ),
           ),
@@ -631,7 +613,10 @@ class _QAlertWithUpdatesState extends State<QAlertWithUpdates> with SingleTicker
       return Icons.local_police;
     } else if (serviceName.contains('FIRE')) {
       return Icons.local_fire_department;
-    } else if (serviceName.contains('DRRMO') || serviceName.contains('CDRRMO') || serviceName.contains('MDRRMO') || serviceName.contains('BDRRMO')) {
+    } else if (serviceName.contains('DRRMO') ||
+        serviceName.contains('CDRRMO') ||
+        serviceName.contains('MDRRMO') ||
+        serviceName.contains('BDRRMO')) {
       return Icons.emergency;
     }
     return Icons.phone_in_talk;
@@ -678,7 +663,6 @@ class _QAlertWithUpdatesState extends State<QAlertWithUpdates> with SingleTicker
     );
   }
 
-
   Widget _buildQuickDialButton({
     required IconData icon,
     required String label,
@@ -691,21 +675,21 @@ class _QAlertWithUpdatesState extends State<QAlertWithUpdates> with SingleTicker
       decoration: BoxDecoration(
         gradient: enabled
             ? LinearGradient(
-          colors: [color, color.withOpacity(0.8)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        )
+                colors: [color, color.withOpacity(0.8)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )
             : null,
         color: enabled ? null : Colors.grey[300],
         borderRadius: BorderRadius.circular(16),
         boxShadow: enabled
             ? [
-          BoxShadow(
-            color: color.withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ]
+                BoxShadow(
+                  color: color.withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ]
             : null,
       ),
       child: Material(
@@ -761,8 +745,7 @@ class _QAlertWithUpdatesState extends State<QAlertWithUpdates> with SingleTicker
     );
   }
 
-
-Widget _buildOnlineReportButton({
+  Widget _buildOnlineReportButton({
     required LGUContact lgu,
     required bool enabled,
   }) {
@@ -770,21 +753,21 @@ Widget _buildOnlineReportButton({
       decoration: BoxDecoration(
         gradient: enabled
             ? const LinearGradient(
-          colors: [Color(0xFFDC143C), Color(0xFFC41230)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        )
+                colors: [Color(0xFFDC143C), Color(0xFFC41230)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )
             : null,
         color: enabled ? null : Colors.grey[300],
         borderRadius: BorderRadius.circular(16),
         boxShadow: enabled
             ? [
-          BoxShadow(
-            color: const Color(0xFFDC143C).withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ]
+                BoxShadow(
+                  color: const Color(0xFFDC143C).withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ]
             : null,
       ),
       child: Material(
@@ -796,14 +779,14 @@ Widget _buildOnlineReportButton({
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
             child: Row(
               children: [
-
-              Container(
+                Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.report_problem_rounded, color: Colors.white, size: 22),
+                  child: const Icon(Icons.report_problem_rounded,
+                      color: Colors.white, size: 22),
                 ),
                 const SizedBox(width: 16),
                 const Expanded(
@@ -831,7 +814,8 @@ Widget _buildOnlineReportButton({
                     ],
                   ),
                 ),
-                const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
+                const Icon(Icons.arrow_forward_ios,
+                    color: Colors.white, size: 16),
               ],
             ),
           ),
@@ -839,7 +823,6 @@ Widget _buildOnlineReportButton({
       ),
     );
   }
-
 
   Widget _buildNewsPageButton({
     required LGUContact lgu,
@@ -849,21 +832,21 @@ Widget _buildOnlineReportButton({
       decoration: BoxDecoration(
         gradient: enabled
             ? const LinearGradient(
-          colors: [Color(0xFF059669), Color(0xFF059659)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        )
+                colors: [Color(0xFF059669), Color(0xFF059659)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )
             : null,
         color: enabled ? null : Colors.grey[300],
         borderRadius: BorderRadius.circular(16),
         boxShadow: enabled
             ? [
-          BoxShadow(
-            color: const Color(0xFFDC143C).withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ]
+                BoxShadow(
+                  color: const Color(0xFFDC143C).withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ]
             : null,
       ),
       child: Material(
@@ -875,14 +858,14 @@ Widget _buildOnlineReportButton({
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
             child: Row(
               children: [
-
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.newspaper, color: Colors.white, size: 22),
+                  child: const Icon(Icons.newspaper,
+                      color: Colors.white, size: 22),
                 ),
                 const SizedBox(width: 16),
                 const Expanded(
@@ -910,7 +893,8 @@ Widget _buildOnlineReportButton({
                     ],
                   ),
                 ),
-                const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
+                const Icon(Icons.arrow_forward_ios,
+                    color: Colors.white, size: 16),
               ],
             ),
           ),
@@ -918,7 +902,6 @@ Widget _buildOnlineReportButton({
       ),
     );
   }
-
 
   Widget _buildFacilityCard({
     required IconData icon,
@@ -937,7 +920,8 @@ Widget _buildOnlineReportButton({
         color: enabled ? color.withOpacity(0.05) : Colors.grey[100],
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: enabled ? color.withOpacity(0.2) : Colors.grey.withOpacity(0.2),
+          color:
+              enabled ? color.withOpacity(0.2) : Colors.grey.withOpacity(0.2),
         ),
       ),
       child: Material(
@@ -957,10 +941,12 @@ Widget _buildOnlineReportButton({
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: enabled ? color.withOpacity(0.1) : Colors.grey[200],
+                        color:
+                            enabled ? color.withOpacity(0.1) : Colors.grey[200],
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Icon(icon, color: enabled ? color : Colors.grey, size: 20),
+                      child: Icon(icon,
+                          color: enabled ? color : Colors.grey, size: 20),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -974,7 +960,9 @@ Widget _buildOnlineReportButton({
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: enabled ? const Color(0xFF1A1A1A) : Colors.grey,
+                              color: enabled
+                                  ? const Color(0xFF1A1A1A)
+                                  : Colors.grey,
                               letterSpacing: -0.3,
                             ),
                           ),
@@ -997,7 +985,8 @@ Widget _buildOnlineReportButton({
                       const SizedBox(width: 8),
                       Flexible(
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 4),
                           decoration: BoxDecoration(
                             color: color.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
@@ -1006,7 +995,8 @@ Widget _buildOnlineReportButton({
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.near_me_rounded, color: color, size: 12),
+                              Icon(Icons.near_me_rounded,
+                                  color: color, size: 12),
                               const SizedBox(width: 4),
                               Flexible(
                                 child: Text(
@@ -1067,8 +1057,10 @@ Widget _buildOnlineReportButton({
                             onTap: () => _openMapForFacility(facility, name),
                             borderRadius: BorderRadius.circular(10),
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                              child: Icon(Icons.map_rounded, color: color, size: 18),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 12),
+                              child: Icon(Icons.map_rounded,
+                                  color: color, size: 18),
                             ),
                           ),
                         ),
@@ -1096,14 +1088,17 @@ Widget _buildOnlineReportButton({
       decoration: BoxDecoration(
         gradient: enabled && !isOutlined
             ? LinearGradient(
-          colors: [color, color.withOpacity(0.8)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        )
+                colors: [color, color.withOpacity(0.8)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )
             : null,
-        color: enabled && isOutlined ? Colors.transparent : (enabled ? null : Colors.grey[300]),
+        color: enabled && isOutlined
+            ? Colors.transparent
+            : (enabled ? null : Colors.grey[300]),
         borderRadius: BorderRadius.circular(10),
-        border: isOutlined && enabled ? Border.all(color: color, width: 1.5) : null,
+        border:
+            isOutlined && enabled ? Border.all(color: color, width: 1.5) : null,
       ),
       child: Material(
         color: Colors.transparent,
@@ -1142,10 +1137,8 @@ Widget _buildOnlineReportButton({
     );
   }
 
-
   // NAVIGATION & ACTIONS
   Future<void> _navigateToReport(LGUContact lgu) async {
-
     Navigator.push(
       context,
       SlideRightToLeftRoute(
@@ -1158,7 +1151,6 @@ Widget _buildOnlineReportButton({
           longitude: currentLon.toString(),
           accuracy: "10",
           paid: lgu.paid,
-
         ),
       ),
     );
@@ -1166,7 +1158,6 @@ Widget _buildOnlineReportButton({
 
   // NAVIGATION & ACTIONS
   Future<void> _navigateToNewsPage(LGUContact lgu) async {
-
     AnalyticsService.trackEvent(
       eventName: "Newspages",
       lguCode: lguCode,
@@ -1175,28 +1166,26 @@ Widget _buildOnlineReportButton({
 
     Navigator.push(
       context,
-      SlideRightToLeftRoute(
-        page: NewsFeedPage(lguCode: lguCode)
-      ),
+      SlideRightToLeftRoute(page: NewsFeedPage(lguCode: lguCode)),
     );
-
-
-
   }
 
   // UPDATE SYSTEM
   Future<void> _checkForUpdates() async {
     try {
-      final response = await http.get(
-        Uri.parse('$apiBaseUrl/api/h3/manifest'),
-      ).timeout(const Duration(seconds: 10));
+      final response = await http
+          .get(
+            Uri.parse('$apiBaseUrl/api/h3/manifest'),
+          )
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode != 200) {
         throw Exception('Server returned ${response.statusCode}');
       }
 
       final Map<String, dynamic> manifest = jsonDecode(response.body);
-      final Map<String, dynamic> serverFiles = manifest['files'] as Map<String, dynamic>;
+      final Map<String, dynamic> serverFiles =
+          manifest['files'] as Map<String, dynamic>;
 
       final prefs = await SharedPreferences.getInstance();
       final localVersions = prefs.getString('file_versions') ?? '{}';
@@ -1237,7 +1226,7 @@ Widget _buildOnlineReportButton({
         ),
         content: Text(
           '$pendingUpdates region file${pendingUpdates > 1 ? 's' : ''} ${pendingUpdates > 1 ? 'have' : 'has'} been updated.\n\n'
-              'Download updates to get the latest emergency contact information.',
+          'Download updates to get the latest emergency contact information.',
           style: const TextStyle(fontSize: 14, height: 1.5),
         ),
         actions: [
@@ -1245,7 +1234,8 @@ Widget _buildOnlineReportButton({
             onPressed: () => Navigator.pop(context),
             child: Text(
               'Later',
-              style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.w600),
+              style: TextStyle(
+                  color: Colors.grey[600], fontWeight: FontWeight.w600),
             ),
           ),
           ElevatedButton(
@@ -1256,10 +1246,12 @@ Widget _buildOnlineReportButton({
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFFF6B35),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
               elevation: 0,
             ),
-            child: const Text('Download Now', style: TextStyle(fontWeight: FontWeight.w600)),
+            child: const Text('Download Now',
+                style: TextStyle(fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -1297,7 +1289,8 @@ Widget _buildOnlineReportButton({
         downloaded++;
 
         setState(() {
-          statusMessage = 'Downloaded $downloaded/${filesToUpdate.length} files...';
+          statusMessage =
+              'Downloaded $downloaded/${filesToUpdate.length} files...';
         });
       }
 
@@ -1309,12 +1302,12 @@ Widget _buildOnlineReportButton({
         updateAvailable = false;
         pendingUpdates = 0;
         statusMessage = '';
-
       });
 
       await _getUserLocation();
 
-      _showSuccess('Successfully downloaded ${filesToUpdate.length} file${filesToUpdate.length > 1 ? 's' : ''}');
+      _showSuccess(
+          'Successfully downloaded ${filesToUpdate.length} file${filesToUpdate.length > 1 ? 's' : ''}');
     } catch (e) {
       setState(() {
         isLoading = false;
@@ -1346,7 +1339,6 @@ Widget _buildOnlineReportButton({
     setState(() {
       isLoading = true;
       statusMessage = 'Acquiring GPS location...';
-
     });
 
     try {
@@ -1396,19 +1388,15 @@ Widget _buildOnlineReportButton({
         selectedLGU = null;
       });
 
-
-      print("this hex8 ${h8Hex}");
+      print("this hex8 $h8Hex");
 
       await _lookupLGU();
-
 
       AnalyticsService.trackEvent(
         eventName: 'getGPS',
         lguCode: lguCode,
         screen: 'HomeScreen',
       );
-
-
     } catch (e) {
       // Crucial check: don't update state or show UI if user closed the screen
       if (!mounted) return;
@@ -1449,7 +1437,6 @@ Widget _buildOnlineReportButton({
 
       final Map<String, dynamic> jsonData = jsonDecode(jsonString);
       return jsonData;
-
     } catch (e) {
       print('❌ Error loading h3.json: $e');
       rethrow;
@@ -1458,7 +1445,6 @@ Widget _buildOnlineReportButton({
 
 // Find LGUs by searching hex_list
   List<LGUContact> _findLGUsByHex(Map<String, dynamic> data, String hexToFind) {
-
     List<LGUContact> matchedLGUs = [];
 
     if (!data.containsKey('lgu')) {
@@ -1481,7 +1467,6 @@ Widget _buildOnlineReportButton({
             matchedLGUs.add(lguContact);
 
             print('✅ Found match: ${lguJson['lguName']}');
-
           } catch (e) {
             print('❌ Error parsing LGU ${lguJson['lguName']}: $e');
           }
@@ -1491,12 +1476,10 @@ Widget _buildOnlineReportButton({
 
     print('📊 Total matches found: ${matchedLGUs.length}');
 
-
     return matchedLGUs;
   }
 
   bool isFallback = false; // add this with your other state variables
-
 
   Future<void> _lookupLGU() async {
     setState(() {
@@ -1522,7 +1505,7 @@ Widget _buildOnlineReportButton({
 
         setState(() {
           foundLGUs = allLGUs;
-          isFallback = true;        // ✅ mark as fallback
+          isFallback = true; // ✅ mark as fallback
           selectedLGU = null;
           lguCode = '';
           isLoading = false;
@@ -1532,10 +1515,7 @@ Widget _buildOnlineReportButton({
         return; // ✅ stop here
       }
 
-
-
-
-      setState(()  {
+      setState(() {
         foundLGUs = matchedLGUs;
         isLoading = false;
         isFallback = false;
@@ -1547,19 +1527,15 @@ Widget _buildOnlineReportButton({
             lguCode = autoSelectedLgu.lgu;
             statusMessage = '';
           });
-
-
         } else {
           statusMessage = '';
         }
-
       });
 
       // _showSuccess('Emergency contacts loaded');
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('lguCode', matchedLGUs.first.lgu);
-
-
+      await registerFcmTokenWithBackend();
     } catch (e) {
       setState(() {
         isLoading = false;
@@ -1572,28 +1548,27 @@ Widget _buildOnlineReportButton({
     debugPrint(
       'Found LGUs (${foundLGUs.length}): ${foundLGUs.map((e) => e.lgu).join(", ")}',
     );
-
   }
 
-
-  void _selectLGU(LGUContact lgu) {
-    // // Pass the actual LGU string/code up to the MainScreen wrapper
-    // widget.onLguChanged(lgu.lgu);
-
+  Future<void> _selectLGU(LGUContact lgu) async {
     setState(() {
       selectedLGU = lgu;
       lguCode = lgu.lgu;
     });
 
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('lguCode', lgu.lgu);
+    await registerFcmTokenWithBackend();
+
     _showSuccess('Selected: ${lgu.lgu}');
   }
-
 
   void _openUrl(String label, String url) async {
     final Uri uri = Uri.parse(url);
 
     // 1. Launch the URL immediately
-    final bool launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    final bool launched =
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
 
     if (launched) {
       // 2. Trigger the submission in the background without awaiting it.
@@ -1603,54 +1578,48 @@ Widget _buildOnlineReportButton({
         lguCode: lguCode,
         screen: 'HomeScreen',
       );
-
-
     } else {
       debugPrint("Could not launch $url");
     }
   }
-
-
 
   void _openUrlQD(String url) async {
     final Uri uri = Uri.parse(url);
 
     // 1. Launch the URL immediately
-    final bool launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    final bool launched =
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
 
     if (launched) {
       _submitToNextCalling();
       print('nae press and call');
-
     } else {
       debugPrint("Could not launch $url");
     }
   }
 
-
   Future<void> _sendSms(String name, String number) async {
+    String message = currentLat != null
+        ? "SOS! I Need Help GPS: ${currentLat?.toStringAsFixed(6)}, ${currentLon?.toStringAsFixed(6)}"
+        : "EMERGENCY SOS! I need help. Location unavailable";
 
-
-  String message = currentLat != null
-  ? "SOS! I Need Help GPS: ${currentLat?.toStringAsFixed(6)}, ${currentLon?.toStringAsFixed(6)}"
-      : "EMERGENCY SOS! I need help. Location unavailable";
-
-  final String url = "sms:$number?body=${Uri.encodeComponent(message).replaceAll('+', '%20')}";
-  if (await canLaunchUrl(Uri.parse(url))) {
-    await launchUrl(Uri.parse(url));
+    final String url =
+        "sms:$number?body=${Uri.encodeComponent(message).replaceAll('+', '%20')}";
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url));
 
       AnalyticsService.trackEvent(
         eventName: "SMS_$name",
         lguCode: lguCode,
         screen: 'HomeScreen',
       );
-
     } else {
       _showError('Could not send SMS');
     }
   }
 
-  Future<void> _openMapForFacility(Facility facility, String facilityType) async {
+  Future<void> _openMapForFacility(
+      Facility facility, String facilityType) async {
     if (facility.coordinates == null || facility.coordinates!.length < 2) {
       _showError('Location coordinates not available');
       return;
@@ -1662,11 +1631,11 @@ Widget _buildOnlineReportButton({
 
     // Try Google Maps first (works on both Android and iOS)
     final googleMapsUrl = Uri.parse(
-        'https://www.google.com/maps/search/?api=1&query=$lat,$lon&query_place_id=$label'
-    );
+        'https://www.google.com/maps/search/?api=1&query=$lat,$lon&query_place_id=$label');
 
     // iOS Apple Maps fallback
-    final appleMapsUrl = Uri.parse('https://maps.apple.com/?q=$label&ll=$lat,$lon');
+    final appleMapsUrl =
+        Uri.parse('https://maps.apple.com/?q=$label&ll=$lat,$lon');
 
     // Generic geo URI for other apps
     final geoUri = Uri.parse('geo:$lat,$lon?q=$lat,$lon($label)');
@@ -1701,12 +1670,12 @@ Widget _buildOnlineReportButton({
             duration: const Duration(seconds: 2),
             // Key changes below:
             margin: EdgeInsets.only(
-              bottom: MediaQuery.of(context).size.height - 180, // Forces it to the top
+              bottom: MediaQuery.of(context).size.height -
+                  180, // Forces it to the top
               left: 10,
               right: 10,
             ),
           ),
-
         );
       } catch (e) {
         print('⚠️ Snackbar error (ignored): $e');
@@ -1728,7 +1697,8 @@ Widget _buildOnlineReportButton({
             duration: const Duration(seconds: 2),
             // Key changes below:
             margin: EdgeInsets.only(
-              bottom: MediaQuery.of(context).size.height - 180, // Forces it to the top
+              bottom: MediaQuery.of(context).size.height -
+                  180, // Forces it to the top
               left: 10,
               right: 10,
             ),
@@ -1739,12 +1709,7 @@ Widget _buildOnlineReportButton({
       }
     });
   }
-
-
 }
-
-
-
 
 class LGUCardSkeleton extends StatelessWidget {
   const LGUCardSkeleton({super.key});
@@ -1771,7 +1736,8 @@ class LGUCardSkeleton extends StatelessWidget {
           // 1. Header Skeleton (Radio/Check + Title)
           const Row(
             children: [
-              SkeletonItem(width: 24, height: 24, borderRadius: 12), // Radio icon
+              SkeletonItem(
+                  width: 24, height: 24, borderRadius: 12), // Radio icon
               SizedBox(width: 12),
               SkeletonItem(width: 180, height: 20), // LGU Name
             ],

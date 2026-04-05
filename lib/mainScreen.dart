@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:joma/services/analytics.dart';
+import 'package:joma/services/fcm_backend.dart';
 import 'emergencyH3.dart';
 import 'profilePage.dart';
 
@@ -15,6 +16,12 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   bool _newsVisited = false;
 
+  @override
+  void initState() {
+    super.initState();
+    // Token is often obtained before login; register once home loads with user_id + lguCode.
+    registerFcmTokenWithBackend();
+  }
 
   Widget _buildBody() {
     return Stack(
